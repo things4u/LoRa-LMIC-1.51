@@ -1,4 +1,4 @@
-LMIC 1.51 port to ESP8266 and Arduino (the normal one)
+LMIC 1.51 port to ESP8266 and Arduino (Atmega 328)
 =====================================================
 (c) M. Westenberg, Feb 11, 2016 
 
