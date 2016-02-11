@@ -1,0 +1,36 @@
+==============================================================================
+LMIC VERSION 1.4  (17-Mar-2015)
+-------------------------------
+
+ - changed API: inverted port indicator flag in LMIC.txrxFlags
+   (now TXRX_PORT, previously TXRX_NOPORT)
+
+ - fixed offset OFF_CFLIST constant
+
+ - changed CRC-16 algorithm for beacons to CCITT(XMODEM) polynomial
+
+ - fixed radio driver (low data rate optimization for SF11+SF12 only for BW125)
+
+ - fixed timer rollover handling in job queue
+
+==============================================================================
+LMIC VERSION 1.5  (8-May-2015)
+------------------------------
+
+ - fixed condition in convFreq()
+
+ - fixed freq*100 bug and freq==0 bug for CFList
+
+ - fixed TX scheduling bug
+
+ - better support for GNU compiler toolchain
+
+==============================================================================
+LMIC VERSION 1.5.1 (10=Feb-2016)
+
+- Conditional compile for Teensy, ESP8266 and regular Arduino MCU's (Atmega 328)
+
+- Swapped the encryption engine in aes.cpp with another one (using functions in 
+  Encrypt_V30.cpp
+
+- Some other memory saving things changed in the code 
