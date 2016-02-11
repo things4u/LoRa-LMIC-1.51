@@ -3,10 +3,10 @@ LMIC 1.51 port to ESP8266 and Arduino (the normal one)
 (c) M. Westenberg, Feb 11, 2016 
 
 This library implements the LoRaWAN stack for a LoRa network.
-It contains the full LoRa stack and works on Teensy platform, ESP8266 en the Ardino Atmega328
+It contains the full LoRa stack and works on Teensy platform, ESP8266 and the Ardino Atmega328
 
 The Library is a port of LMIC-1.5 LoRa library to Arduino/Atmega 328 and the ESP8266, 
-these the AES functions are a melt of two existing libraries:
+and especially the AES functions are a melt of two existing libraries:
 
 1. The LMIC-1.5 library of IBM which was ported to Arduino (Teensy) IDE by Thomas Telkamp 
    and Matthijs Kooijman 
