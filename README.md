@@ -15,8 +15,9 @@ and especially the AES functions are a melt of two existing libraries:
 
 AES Encryption library
 ----------------------
-After analysing the existing LMIC-1.5 code of IBM for AES encryption which is far too complex 
-(and too large) and therefore another AES library was ported to the environment. 
+After analysing the existing LMIC-1.5 code of IBM for AES encryption I came to the sonslusion 
+that the encryption part of LMIC-1.5 is far too complex and too large.
+And as I did not fit in the Atmega 328 another AES library was ported to the environment. 
 Of course there are several AES implementations available, but since I already had experience 
 with the library of Ideetron, I decided to give that a try. The result should be that the complete 
 LMIC stack would be runnign on a regular Atmega 328 based MCU and there be some room left for 
