@@ -194,7 +194,11 @@ void loop() {
 
 	do_send(&sendjob);
 	while(1) {
+<<<<<<< HEAD
 		os_runloop_once();
+=======
+		os_runloop_once();  
+>>>>>>> ded4e457f663688a6023b38bf9557963fcb89e13
 		yield();
 	}
 }

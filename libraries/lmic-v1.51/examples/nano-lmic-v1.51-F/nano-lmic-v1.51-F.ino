@@ -199,7 +199,7 @@ void loop() {
 	do_send(&sendjob);
 	while(1) {
 		os_runloop_once();  
-		delay(1000);
+		yield();
 	}
 }
 
