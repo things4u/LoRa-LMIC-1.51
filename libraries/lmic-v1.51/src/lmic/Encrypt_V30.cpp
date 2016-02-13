@@ -1,8 +1,12 @@
 /******************************************************************************************
 *
 * File:        Encrypt_V30.cpp
-* Author:      Gerben den Hartog (Ideetron B.V.). Ported to the regular Arduino platform
-*				running the IBM LMIC-1.5 stack by Maarten Westenberg.
+* Author:      Gerben den Hartog (Ideetron B.V.). 
+*
+* Ported to the regular Arduino platform running the LMIC-1.5 stack by Maarten Westenberg.
+*
+* 
+* This file is distributed under GPL 3 license
 *
 ******************************************************************************************/
 /****************************************************************************************

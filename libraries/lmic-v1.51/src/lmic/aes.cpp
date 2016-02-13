@@ -1,17 +1,21 @@
 /*******************************************************************************
  * Copyright (c) 2016, Maarten Westenberg (mw12554@hotmail.com)
- * Added a new interface calling a more memory efficient AES library
+ * Added a new interface calling a more memory efficient AES library.
+ * Instead of rewriting parts of the LMIC code with another library new encryption
+ * is added behind the same function header that LMIC used.
  *
- * Based on work of IBM (original file included at bottom):
  *
+ * The original work of IBM (original file included at bottom) is included as
+ * a reference but not compiled or executed if AESMINI is set.
  * Copyright (c) 2014-2015 IBM Corporation.
+ * Contributors:
+ *    IBM Zurich Research Lab - initial API, implementation and documentation
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors:
- *    IBM Zurich Research Lab - initial API, implementation and documentation
  *******************************************************************************/
 #define TEST 0
 #define AESMINI 1
@@ -32,12 +36,9 @@
 #define AES_MICSUB 0x30 // internal use only
 
 
-
-
 // ----------------------------------------------------------------
 // OS_AES() Function
 // ----------------------------------------------------------------
-
 
 #if AESMINI==1
 
@@ -54,18 +55,17 @@ u4_t AESAUX[16/sizeof(u4_t)];
 u4_t AESKEY[11*16/sizeof(u4_t)];
 
 u4_t os_aes (u1_t mode, xref2u1_t buf, u2_t len) {
-// Only for compact compression use AES.cpp library
+
   int i;
   char *p = (char *) buf;					// Make copies of bffer pointer and length
 
-	u4_t aesaux0;
-	unsigned char mic[4];
-	int fcnt = AESaux[11]*256 + AESaux[10];
+  u4_t aesaux0;
+  unsigned char mic[4];
+  int fcnt = AESaux[11]*256 + AESaux[10];
   switch (mode) {
-	case AES_MICNOAUX:			// 8 No Payload MIC?
+	case AES_MICNOAUX:			// 8 No Payload MIC? not externally used in original function
 	
 	case AES_MIC:				// 2 Message Integrity Code
-		//Calculate_MIC(coded, mic, len, fcnt, 0);
 		Calculate_MIC(buf, mic, len, fcnt, 0);
 		//Serial.print("V30 MIC:: <"); Serial.print(len+9); Serial.print("> ");
 		//for (i=0; i< 4; i++) { Serial.print(mic[i],HEX); Serial.print(" "); } Serial.println();
@@ -81,7 +81,7 @@ u4_t os_aes (u1_t mode, xref2u1_t buf, u2_t len) {
 	break;
 	case AES_CTR:				// 4 Cipher, payload coding
 								// Note: The framecounter is provided in new library but is in AESaux[10] and AESaux[11] in LMIC
-		Encrypt_Payload(buf, len, fcnt, 0);									// Encrypt. Direction is 0 (up).
+		Encrypt_Payload(buf, len, fcnt, 0);		// Encrypt. Direction is 0 (up).
 		//Serial.print("V30 Pay:: <"); Serial.print(len); Serial.print("> ");
 		//for (i=0; i< len; i++) { Serial.print(coded[i],HEX); Serial.print(" "); } Serial.println();
 		return(0);
@@ -94,6 +94,9 @@ u4_t os_aes (u1_t mode, xref2u1_t buf, u2_t len) {
 
 
 #else // #ifndef AESMINI
+
+// This is the original content of aes.cpp as developed by IBM. 
+// Included as a reference and for comparison of outcome :-)
 
 static const u4_t AES_RCON[10] = { 
     0x01000000, 0x02000000, 0x04000000, 0x08000000, 0x10000000, 

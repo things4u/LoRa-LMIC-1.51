@@ -5,6 +5,9 @@
 * Compagny:    Ideetron B.V.
 * Website:     http://www.ideetron.nl/LoRa
 * E-mail:      info@ideetron.nl
+* 
+* This file is distributed under GPL 3 license
+*
 ******************************************************************************************/
 /****************************************************************************************
 *

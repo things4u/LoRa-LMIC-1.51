@@ -11,7 +11,7 @@
  * NO WARRANTY OF ANY KIND IS PROVIDED.
  *
  * This example sends a valid LoRaWAN packet with sensor values read.
- If no sensor is connected the payload is "Hello, world!", that
+ * If no sensor is connected the payload is '{"Hello":"World"}', that
  * will be processed by The Things Network server.
  *
  * Note: LoRaWAN per sub-band duty-cycle limitation is enforced (1% in g1, 
@@ -194,8 +194,8 @@ void loop() {
 
 	do_send(&sendjob);
 	while(1) {
-		os_runloop_once();  
-		delay(1000);
+		os_runloop_once();
+		yield();
 	}
 }
 

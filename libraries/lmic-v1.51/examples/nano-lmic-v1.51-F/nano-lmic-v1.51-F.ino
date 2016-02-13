@@ -11,7 +11,7 @@
  * NO WARRANTY OF ANY KIND IS PROVIDED.
  *
  * This example sends a valid LoRaWAN packet with sensor values read.
- If no sensor is connected the payload is "Hello, world!", that
+ * If no sensor is connected the payload is '{"Hello":"World"}', that
  * will be processed by The Things Network server.
  *
  * Note: LoRaWAN per sub-band duty-cycle limitation is enforced (1% in g1, 
@@ -29,7 +29,6 @@
  *******************************************************************************/
 
 #define WAIT_SECS 120
-#define ONE_WIRE_BUS 2					// GPIO2/D4 for ESP
 
 
 #if defined(__AVR__)
@@ -50,7 +49,6 @@
 //---------------------------------------------------------
 // Sensor declarations
 //---------------------------------------------------------
-
 
 // Frame Counter
 int count=0;
@@ -74,7 +72,7 @@ unsigned char AppSkey[16] =		{ 0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6, 0
 // LoRaWAN end-device address (DevAddr)
 // See http://thethingsnetwork.org/wiki/AddressSpace
 
-#define msbf4_read(p)   (long)((long)(p)[0]<<24 | (long)(p)[1]<<16 | (p)[2]<<8 | (p)[3])
+#define msbf4_read(p)   (u4_t)((u4_t)(p)[0]<<24 | (u4_t)(p)[1]<<16 | (p)[2]<<8 | (p)[3])
 unsigned char DevAddr[4] = { 0x01, 0x01, 0x01, 0x01 };
 
 

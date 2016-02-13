@@ -15,16 +15,16 @@ and especially the AES functions are a melt of two existing libraries:
 
 AES Encryption library
 ----------------------
-After analysing the existing LMIC-1.5 code of IBM for AES encryption I came to the sonslusion 
+After analysing the existing LMIC-1.5 code of IBM for AES encryption I came to the conslusion 
 that the encryption part of LMIC-1.5 is far too complex and too large.
 And as I did not fit in the Atmega 328 another AES library was ported to the environment. 
 Of course there are several AES implementations available, but since I already had experience 
 with the library of Ideetron, I decided to give that a try. The result should be that the complete 
-LMIC stack would be runnign on a regular Atmega 328 based MCU and there be some room left for 
+LMIC stack would be running on a regular Atmega 328 based MCU and there still be some room left for 
 sensor sketches.
 
-The port was successful, and the stch now fits on the Arduino Pro-Mini leaving some room for 
-a DALLAS or I2C ibrary and sensor. Simpler interfaces making direct use of the GPIO interface 
+The port was successful, and the sketch now fits on the Arduino Pro-Mini leaving some room for 
+a DALLAS or I2C ibrary and sensor. Simpler interfaces making direct use of the GPIO pins
 will probably fit as well
 
 Still, after all optimizations the code is large for the small Arduino Nano or ProMini,
