@@ -16,11 +16,21 @@
 *
 * Firmware Version 1.0
 * First version
+*
+* Feb 13, 2016: Modified by Maarten Westenberg (mw12554@hotmail.com) for conditional 
+*				compile AND PROGMEM usage
+*
 ****************************************************************************************/
 
 #include "AES-128_V10.h"
 #if defined(__AVR__)
 #include <avr/pgmspace.h>
+#elif defined(ARDUINO_ARCH_ESP8266)
+#include <ESP.h>
+#elif defined(__MKL26Z64__)
+#include <arduino.h>
+#else
+#error Unknown architecture in aes.cpp
 #endif
 
 /*
@@ -32,8 +42,8 @@
 unsigned char State[4][4];
 
 #if defined(__AVR__)
-//static const unsigned char S_Table [16][16] PROGMEM = {
-unsigned char S_Table [16][16] = {
+static const unsigned char S_Table [16][16] PROGMEM = {
+//unsigned char S_Table [16][16] = {
 #else
 unsigned char S_Table [16][16] = {
 #endif
@@ -182,8 +192,11 @@ unsigned char AES_Sub_Byte(unsigned char Byte)
 	S_Collum = (Byte & 0x0F);
 
   //Find the correct byte in the S_Table
+#if defined(__AVR__)
+	S_Byte = pgm_read_byte_near( & S_Table[S_Row][S_Collum]);	// XXX When using PROGMEM
+#else
 	S_Byte = S_Table[S_Row][S_Collum];
-
+#endif
 	return S_Byte;
 }
 

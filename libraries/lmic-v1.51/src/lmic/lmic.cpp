@@ -7,6 +7,8 @@
  *
  * Contributors:
  *    IBM Zurich Research Lab - initial API, implementation and documentation
+ *	  Maarten Westenberg - conditional compile
+ *    Niels van Oord - Power setting repaired (bug) 
  *******************************************************************************/
 #define TEST 0
 
@@ -518,6 +520,7 @@ static void setDrTxpow (u1_t reason, u1_t dr, s1_t pow) {
     
     if( pow != KEEP_TXPOW )
         LMIC.adrTxPow = pow;
+		LMIC.txpow = pow;
     if( LMIC.datarate != dr ) {
         LMIC.datarate = dr;
         DO_DEVDB(LMIC.datarate,datarate);
@@ -660,7 +663,7 @@ static void updateTx (ostime_t txbeg) {
     // Update channel/global duty cycle stats
     xref2band_t band = &LMIC.bands[freq & 0x3];
     LMIC.freq  = freq & ~(u4_t)3;
-    LMIC.txpow = band->txpow;
+    //LMIC.txpow = band->txpow;
     band->avail = txbeg + airtime * band->txcap;
     if( LMIC.globalDutyRate != 0 )
         LMIC.globalDutyAvail = txbeg + (airtime<<LMIC.globalDutyRate);
