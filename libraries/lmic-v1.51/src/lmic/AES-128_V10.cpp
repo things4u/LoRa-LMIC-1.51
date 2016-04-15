@@ -28,7 +28,7 @@
 #elif defined(ARDUINO_ARCH_ESP8266)
 #include <ESP.h>
 #elif defined(__MKL26Z64__)
-#include <arduino.h>
+#include <Arduino.h>
 #else
 #error Unknown architecture in aes.cpp
 #endif
