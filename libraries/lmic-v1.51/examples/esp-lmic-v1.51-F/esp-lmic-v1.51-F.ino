@@ -72,7 +72,7 @@ unsigned char AppSkey[16] =	{ 0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6, 0x
 
 // LoRaWAN end-device address (DevAddr)
 // See http://thethingsnetwork.org/wiki/AddressSpace
-static const u4_t DevAddr = 0x01010101;
+u4_t DevAddr = 0x01010101;
 
 
 // ----------------------------------------------------------------------------

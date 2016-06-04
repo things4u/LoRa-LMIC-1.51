@@ -30,6 +30,7 @@
 *****************************************************************************************
 */
 
+#include "oslmic.h"
 #include "Encrypt_V30.h"
 #include "AES-128_V10.h"
 
@@ -41,7 +42,7 @@
 
 extern unsigned char NwkSkey[16];
 extern unsigned char AppSkey[16];
-extern unsigned char DevAddr[4];
+extern u4_t DevAddr;
 
 // --------------------------------------------------------------------
 //
@@ -73,10 +74,10 @@ void Encrypt_Payload(unsigned char *Data, unsigned char Data_Length, unsigned in
 
 		Block_A[5] = Direction;
 
-		Block_A[6] = DevAddr[3];
-		Block_A[7] = DevAddr[2];
-		Block_A[8] = DevAddr[1];
-		Block_A[9] = DevAddr[0];
+		Block_A[6] = DevAddr;
+		Block_A[7] = DevAddr>>8;
+		Block_A[8] = DevAddr>>16;
+		Block_A[9] = DevAddr>>24;
 
 		Block_A[10] = (Frame_Counter & 0x00FF);
 		Block_A[11] = ((Frame_Counter >> 8) & 0x00FF);
@@ -157,10 +158,10 @@ void Calculate_MIC(unsigned char *Data, unsigned char *Final_MIC, unsigned char 
 
 	Block_B[5] = Direction;
 
-	Block_B[6] = DevAddr[3];
-	Block_B[7] = DevAddr[2];
-	Block_B[8] = DevAddr[1];
-	Block_B[9] = DevAddr[0];
+	Block_B[6] = DevAddr;
+	Block_B[7] = DevAddr>>8;
+	Block_B[8] = DevAddr>>16;
+	Block_B[9] = DevAddr>>24;
 
 	Block_B[10] = (Frame_Counter & 0x00FF);
 	Block_B[11] = ((Frame_Counter >> 8) & 0x00FF);
