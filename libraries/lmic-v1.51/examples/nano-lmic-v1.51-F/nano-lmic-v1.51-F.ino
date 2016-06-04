@@ -71,9 +71,7 @@ unsigned char AppSkey[16] =		{ 0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6, 0
 
 // LoRaWAN end-device address (DevAddr)
 // See http://thethingsnetwork.org/wiki/AddressSpace
-
-#define msbf4_read(p)   (u4_t)((u4_t)(p)[0]<<24 | (u4_t)(p)[1]<<16 | (p)[2]<<8 | (p)[3])
-unsigned char DevAddr[4] = { 0x01, 0x01, 0x01, 0x01 };
+static const u4_t DevAddr = 0x01010101;
 
 
 // ----------------------------------------------------------------------------
@@ -167,7 +165,7 @@ void setup() {
   LMIC_reset();
   // Set static session parameters. Instead of dynamically establishing a session 
   // by joining the network, precomputed session parameters are be provided.
-  LMIC_setSession (0x1, msbf4_read(DevAddr), (uint8_t*)NwkSkey, (uint8_t*)AppSkey);
+  LMIC_setSession (0x1, DevAddr, (uint8_t*)NwkSkey, (uint8_t*)AppSkey);
   // Disable data rate adaptation
   LMIC_setAdrMode(0);
   // Disable link check validation
