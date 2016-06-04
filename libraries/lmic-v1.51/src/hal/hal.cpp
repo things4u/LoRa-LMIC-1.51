@@ -35,8 +35,8 @@
 
 static void hal_io_init () {
     pinMode(pins.nss, OUTPUT);
-    pinMode(pins.rxtx, OUTPUT);			// NOT used on ESP8266
-    pinMode(pins.rst, OUTPUT);
+    pinMode(pins.rxen, OUTPUT);
+    pinMode(pins.txen, OUTPUT);
     pinMode(pins.dio[0], INPUT);
     pinMode(pins.dio[1], INPUT);
     pinMode(pins.dio[2], INPUT);
@@ -44,7 +44,13 @@ static void hal_io_init () {
 
 // val == 1  => tx 1
 void hal_pin_rxtx (u1_t val) {
-    digitalWrite(pins.rxtx, val);
+	if (val == 1) {
+		digitalWrite(pins.txen, 1);
+		digitalWrite(pins.rxen, 0);
+	} else {
+		digitalWrite(pins.txen, 0);
+		digitalWrite(pins.rxen, 1);
+	}
 }
 
 // set radio RST pin to given value (or keep floating!)
