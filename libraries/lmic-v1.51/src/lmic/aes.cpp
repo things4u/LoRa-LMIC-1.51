@@ -45,7 +45,7 @@
 #ifndef AESaux
 #define AESaux ((u1_t*)AESAUX)				// Nr 10,11 is framecounter
 #endif
-#define msbf4_read(p)   (u4_t)((u4_t)(p)[0]<<24 | (u4_t)(p)[1]<<16 | (p)[2]<<8 | (p)[3])
+#define msbf4_read(p) (((u4_t)((p)[0]) << 8 | (p)[1]) << 8 | (p)[2]) << 8 | (p)[3]
 
 #include "Encrypt_V30.h"
 #include "AES-128_V10.h"
@@ -279,7 +279,6 @@ static const u4_t AES_E4[256] = {
   0x4141C382, 0x9999B029, 0x2D2D775A, 0x0F0F111E, 0xB0B0CB7B, 0x5454FCA8, 0xBBBBD66D, 0x16163A2C, 
 };
 
-#define msbf4_read(p)    ((p)[0]<<24 | (p)[1]<<16 | (p)[2]<<8 | (p)[3])
 #define msbf4_write(p,v) (p)[0]=(v)>>24,(p)[1]=(v)>>16,(p)[2]=(v)>>8,(p)[3]=(v)
 #define swapmsbf(x)      ( (x&0xFF)<<24 | (x&0xFF00)<<8 | (x&0xFF0000)>>8 | (x>>24) )
 
