@@ -172,7 +172,7 @@ void hal_sleep () {
 }
 
 // -----------------------------------------------------------------------------
-// For ESP8266: If the radio is not connected well, we will probably get a
+// For ESP8266: If the radion is not connected well, we will probably get a
 // wdt (watchdog) problem in this routine.
 //
 void hal_init () {
