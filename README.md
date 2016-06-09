@@ -1,6 +1,6 @@
 LMIC 1.51 port to ESP8266 and Arduino (Atmega 328)
 =====================================================
-(c) M. Westenberg, May 11, 2016 
+(c) M. Westenberg, Feb 11, 2016 
 
 This library implements the LoRaWAN stack for a LoRa network.
 It contains the full LoRa stack and works on Teensy platform, ESP8266 and the Ardino Atmega328
@@ -15,7 +15,7 @@ and especially the AES functions are a melt of two existing libraries:
 
 AES Encryption library
 ----------------------
-After analysing the existing LMIC-1.5 code of IBM for AES encryption I came to the conclusion 
+After analysing the existing LMIC-1.5 code of IBM for AES encryption I came to the conslusion 
 that the encryption part of LMIC-1.5 is far too complex and too large.
 And as I did not fit in the Atmega 328 another AES library was ported to the environment. 
 Of course there are several AES implementations available, but since I already had experience 

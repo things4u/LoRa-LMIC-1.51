@@ -1,4 +1,4 @@
-/******* ************************************************************************
+/*******************************************************************************
  * Copyright (c) 2016, Maarten Westenberg (mw12554@hotmail.com)
  * Added a new interface calling a more memory efficient AES library.
  * Instead of rewriting parts of the LMIC code with another library new encryption
@@ -18,134 +18,77 @@
  *
  *******************************************************************************/
 #define TEST 0
-#if TEST==1
-	int i=0;
-#endif
+#define AESMINI 1
 
 #include "oslmic.h"
 
 #if defined(__AVR__)
 #include <avr/pgmspace.h>
-#include <Arduino.h>
-#define AESMINI 1
-
+#include <arduino.h>
 #elif defined(ARDUINO_ARCH_ESP8266)
 #include <ESP.h>
-#define AESMINI 1
-
-#elif defined(__MKL26Z64__) || defined(__MK20DX128__)
+#elif defined(__MKL26Z64__)
 #include <arduino.h>
-#define AESMINI 1
-
 #else
 #error Unknown architecture in aes.cpp
 #endif
 
 #define AES_MICSUB 0x30 // internal use only
 
-#if TEST==1
-void printBuf(char *lbl, xref2u1_t buf, u2_t len) {
-	Serial.print(lbl);
-	Serial.print("<"); Serial.print(len); Serial.print("> ");
-	for (i=0; i<(len); i++) { if (buf[i]<16) Serial.print('0'); Serial.print(buf[i],HEX); Serial.print(" "); } Serial.println();
-}
-#endif
 
-// ------------------------------------------------------------------------------------
-// OS_AES() Function,
-// This function handles ALL aes encoding functions for LMIC.
-// It ha sthe same interface as the original (buf) aes functions of LMIC 1.5
-// However it is a LOT smaller
-// ------------------------------------------------------------------------------------
+// ----------------------------------------------------------------
+// OS_AES() Function
+// ----------------------------------------------------------------
 
 #if AESMINI==1
-#include "Encrypt_V30.h"
-#include "AES-128_V10.h"
 
 #ifndef AESaux
 #define AESaux ((u1_t*)AESAUX)				// Nr 10,11 is framecounter
 #endif
-
 #define msbf4_read(p)   (u4_t)((u4_t)(p)[0]<<24 | (u4_t)(p)[1]<<16 | (p)[2]<<8 | (p)[3])
 
+#include "Encrypt_V30.h"
+#include "AES-128_V10.h"
+extern unsigned char NwkSkey[16];
+
 u4_t AESAUX[16/sizeof(u4_t)];
-// 0 = Message Code (1 for CTR)
-// 1 = 0
-// 2 = 0 
-// 3 = 0
-// 4 = 0
-// 5 = Down-Up direction
-// 6 = DevAddr[3]
-// 7 = DevAddr[2]
-// 8 = DevAddr[1]
-// 9 = DevAddr[0]
-//10 = FCNT LSB
-//11 = FCNT MSB
-//12 = Framecounter 32-bit upper bytes
-//13 = Framecounter 32-bit upper bytes
-//14 = 0
-//15 = block count
 u4_t AESKEY[11*16/sizeof(u4_t)];
 
-//  -----------------------------------------------------------------------------------
-//
 u4_t os_aes (u1_t mode, xref2u1_t buf, u2_t len) {
 
-  unsigned char i;
-  unsigned char mic[4];
+  int i;
+  char *p = (char *) buf;					// Make copies of bffer pointer and length
 
-  int dir = AESaux[5];
-  
-  if( mode & AES_MICNOAUX ) {				// to corect MICNOAUX
-	  AESAUX[0] = AESAUX[1] = AESAUX[2] = AESAUX[3] = 0;
-#if TEST==1
-	  Serial.println((char *)">V30 MNA:: ");
-#endif
-  }
-  
-  int fcnt = AESaux[11]*256 + AESaux[10];	// Framecounter in LSB first format
-  
-  switch (mode & (~ AES_MICNOAUX)) {
-	case AES_ENC:				// ==0 Encoding
-#if TEST==1
-		Serial.println("<ENC:: ");
-#endif
-		// As AES_Encrypt does only 16 bytes at a time, we have to loop until
-		// we are out of 16-byte strings in buffer
-		for (i=0; i<len; i+=16) {
-			AES_Encrypt(buf+i,AESkey);
-		}
+  u4_t aesaux0;
+  unsigned char mic[4];
+  int fcnt = AESaux[11]*256 + AESaux[10];
+  switch (mode) {
+	case AES_MICNOAUX:			// 8 No Payload MIC? not externally used in original function
+	
+	case AES_MIC:				// 2 Message Integrity Code
+		Calculate_MIC(buf, mic, len, fcnt, 0);
+		//Serial.print("V30 MIC:: <"); Serial.print(len+9); Serial.print("> ");
+		//for (i=0; i< 4; i++) { Serial.print(mic[i],HEX); Serial.print(" "); } Serial.println();
+		aesaux0 = (u4_t) msbf4_read((u1_t *)mic);
+		return(aesaux0);
+	break;
+	case AES_ENC:				// 0 Encoding (NOT present in this sketch, but==0)
+		//Serial.print("V30 Enc:: <"); Serial.print(len); Serial.print("> ");
+		AES_Encrypt(buf,NwkSkey);
+		//for (i=0; i< len; i++) { Serial.print(buf[i],HEX); Serial.print(" "); } 
+		//Serial.println();
 		return(0);				// Return empty EAS
 	break;
-	
-	case AES_MICNOAUX:			// ==8 No Payload MIC? not externally used in original function
-		// This can never happen (see switch condition)
-#if TEST==1
-		Serial.println("!MNA");
-#endif
-	break;
-	
-	case AES_MIC:				// ==2 Message Integrity Code
-		Calculate_MIC(buf, mic, len, fcnt, dir);
-#if TEST==1
-		Serial.print("dir "); Serial.println(dir); 
-		printBuf((char *)">V30 MIC:: ",buf,len);
-#endif
-		AESAUX[0] = (u4_t) msbf4_read((u1_t *)mic);	// XXX 160508
-		return((u4_t) msbf4_read((u1_t *)mic));
-	break;
-	
 	case AES_CTR:				// 4 Cipher, payload coding
+								// Note: The framecounter is provided in new library but is in AESaux[10] and AESaux[11] in LMIC
 		Encrypt_Payload(buf, len, fcnt, 0);		// Encrypt. Direction is 0 (up).
-#if TEST==1
-		printBuf((char *)">V30 Pay:: ",buf,len); 
-#endif
+		//Serial.print("V30 Pay:: <"); Serial.print(len); Serial.print("> ");
+		//for (i=0; i< len; i++) { Serial.print(coded[i],HEX); Serial.print(" "); } Serial.println();
 		return(0);
 	break;
 	default:
 		Serial.print(F("os_aes: Unknown mode: ")); Serial.println(mode);
   }
-  
   return(1);
 }
 
@@ -363,6 +306,7 @@ u4_t AESAUX[16/sizeof(u4_t)];
 u4_t AESKEY[11*16/sizeof(u4_t)];
 
 
+
 // generate 1+10 roundkeys for encryption with 128-bit key
 // read 128-bit key from AESKEY in MSBF, generate roundkey words in place
 static void aesroundkeys () {
@@ -388,58 +332,10 @@ static void aesroundkeys () {
     }
 }
 
-
-// ----------------------------------------------------------------------------------------	
 // Use the LMIC standard AES library. Uses more memory
-//
+
 u4_t os_aes (u1_t mode, xref2u1_t buf, u2_t len) {
 
-#if TEST==1
-#include "Encrypt_V30.h"
-#include "AES-128_V10.h"
-
-	u1_t mm		= mode;
-	u2_t ll		= len;
-	xref2u1_t bb = buf;
-	
-	unsigned char effe[64];
-	if (mode == 0)						// AES_ENC
-	{
-		os_copyMem(effe,buf,len+9);
-		Serial.println(i%16);
-		for (i=0; i<len; i+=16) {
-			AES_Encrypt(effe+i, AESkey);
-		}
-		printBuf(">NEW:: ",effe,len);
-	}
-	
-	if (mode & AES_MICNOAUX) {		// AES_MICNOAUX, this is used for sending Join Requests
-		unsigned char mic[4];
-		unsigned int fcnt = AESaux[11]*256 + AESaux[10];	// Framecounter in LSB first format
-		u4_t aesaux0;
-		Serial.println(">MNA:: ");
-		AESAUX[0] = AESAUX[1] = AESAUX[2] = AESAUX[3] = 0;
-		os_copyMem(effe,buf,len);	
-		Calculate_MIC0(effe, mic, len, fcnt, AESaux[5]);
-		//printBuf(">V30:: ",effe,len);	
-		aesaux0 = (u4_t) msbf4_read((u1_t *)mic);
-		Serial.print("fc5 "); Serial.print(fcnt,HEX); Serial.print(", dwn "); Serial.print(AESaux[5],HEX); Serial.println(' ');
-		Serial.print("ret "); Serial.println(aesaux0,HEX); 
-		
-	}
-	
-	else if (mode & AES_MIC) {
-		unsigned char mic[4];
-		unsigned int fcnt = AESaux[11]*256 + AESaux[10];	// Framecounter in LSB first format
-		u4_t aesaux0;
-		os_copyMem(effe,buf,len);	
-		Calculate_MIC(effe, mic, len, fcnt, AESaux[5]);
-		printBuf(">V3x:: ",effe,len);		
-		aesaux0 = (u4_t) msbf4_read((u1_t *)mic);
-		Serial.print("fc5 "); Serial.print(fcnt,HEX); Serial.print(", dwn "); Serial.print(AESaux[5],HEX); Serial.println(' ');
-		Serial.print("ret "); Serial.println(aesaux0,HEX); 
-	}
-#endif
         aesroundkeys();
 
         if( mode & AES_MICNOAUX ) {
@@ -455,8 +351,7 @@ u4_t os_aes (u1_t mode, xref2u1_t buf, u2_t len) {
             u4_t a0, a1, a2, a3;
             u4_t t0, t1, t2, t3;
             u4_t *ki, *ke;
-			t0 = t1 = t2 = t3 = 0; 						// XXX 160505
-			a0 = a1 = a2 = a3 = 0;						// XXX 160505
+
             // load input block
             if( (mode & AES_CTR) || ((mode & AES_MIC) && (mode & AES_MICNOAUX)==0) ) { // load CTR block or first MIC block
                 a0 = AESAUX[0];
@@ -464,9 +359,9 @@ u4_t os_aes (u1_t mode, xref2u1_t buf, u2_t len) {
                 a2 = AESAUX[2];
                 a3 = AESAUX[3];
             }
-            else if( (mode & AES_MIC) && len <= 16 ) {	// last MIC block
-                a0 = a1 = a2 = a3 = 0; 					// load null block
-                mode |= ((len == 16) ? 1 : 2) << 4;		// set MICSUB: CMAC subkey K1 or K2
+            else if( (mode & AES_MIC) && len <= 16 ) { // last MIC block
+                a0 = a1 = a2 = a3 = 0; // load null block
+                mode |= ((len == 16) ? 1 : 2) << 4; // set MICSUB: CMAC subkey K1 or K2
             } 
 			else
         LOADDATA: { // load data block (partially)
@@ -575,18 +470,22 @@ u4_t os_aes (u1_t mode, xref2u1_t buf, u2_t len) {
             }
             mode |= AES_MICNOAUX;
         }
-
 #if TEST==1
-	// Use copy of mode, as original mode is modified in function
-	if ((mm & AES_MICNOAUX) || (mm == 0) || (mm & AES_MIC) || (mm & AES_CTR) )
-	{
-		if (mm & AES_MICNOAUX) Serial.println(">MNA:: "); 
-		if (mm & AES_MIC) { printBuf(">MIC:: ",bb,ll); }
-		if (mm & AES_CTR) printBuf(">CTR:: ",bb,ll); 
-		if (mm == 0) 	printBuf(">ENC:: ",bb,ll); 
-		Serial.print(F("ret ")); Serial.println(AESAUX[0],HEX); 
-	}	
+	
+	Serial.print("> AUX:: "); for (i=0;i<4;i++) { Serial.print(AESAUX[i],HEX); Serial.print(" "); } 
+		Serial.println();
+		
+	Serial.print("> mode: "); Serial.print(mode,HEX); Serial.println();
+		
+	if (len>256) len+=16;
+	
+	Serial.print("> buf:: <"); Serial.print(len+9); Serial.print("> "); 
+		for (i=0; i<(len+9); i++) { Serial.print(p[i],HEX); Serial.print(" "); }
+		Serial.println(); Serial.println();
+		
 #endif // TEST
-    return AESAUX[0];
+        return AESAUX[0];
 }
 #endif // ifndef AESmini
+
+
