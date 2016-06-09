@@ -13,11 +13,11 @@
 #define TEST 0
 #if defined(__AVR__)
 #include <avr/pgmspace.h>
-#include <Arduino.h>
+#include <arduino.h>
 #elif defined(ARDUINO_ARCH_ESP8266)
 #include <ESP.h>
 #elif defined(__MKL26Z64__)
-#include <Arduino.h>
+#include <arduino.h>
 #else
 #error Unknown architecture in aes.cpp
 #endif
@@ -129,7 +129,14 @@
 // #define RegAgcThresh3                              0x46 // common
 // #define RegPllHop                                  0x4B // common
 // #define RegTcxo                                    0x58 // common
+
+// XXX Bug found by Niels
+#ifdef CFG_sx1276_radio
+#define RegPaDac                                   0x4D // common
+#elif CFG_sx1272_radio
 #define RegPaDac                                   0x5A // common
+#endif
+
 // #define RegPll                                     0x5C // common
 // #define RegPllLowPn                                0x5E // common
 // #define RegFormerTemp                              0x6C // common

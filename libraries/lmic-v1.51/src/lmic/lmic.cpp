@@ -10,17 +10,16 @@
  *	  Maarten Westenberg - conditional compile
  *    Niels van Oord - Power setting repaired (bug) 
  *******************************************************************************/
-#define TEST 0
 
 //! \file
 #include "lmic.h"
 #if defined(__AVR__)
 #include <avr/pgmspace.h>
-#include <Arduino.h>
+#include <arduino.h>
 #elif defined(ARDUINO_ARCH_ESP8266)
 #include <ESP.h>
 #elif defined(__MKL26Z64__)
-#include <Arduino.h>
+#include <arduino.h>
 #else
 #error Unknown architecture in aes.cpp
 #endif
@@ -185,9 +184,6 @@ static int aes_verifyMic0 (xref2u1_t pdu, int len) {
 
 static void aes_encrypt (xref2u1_t pdu, int len) {
     os_getDevKey(AESkey);
-#if TEST==1
-	Serial.print("aes_encrypt pdu"); Serial.println();
-#endif
     os_aes(AES_ENC, pdu, len);
 }
 
@@ -212,10 +208,6 @@ static void aes_sessKeys (u2_t devnonce, xref2cu1_t artnonce, xref2u1_t nwkkey, 
     os_wlsbf2(nwkkey+1+LEN_ARTNONCE+LEN_NETID, devnonce);
     os_copyMem(artkey, nwkkey, 16);
     artkey[0] = 0x02;
-	
-#if TEST==1
-	Serial.print("aes_sessKeys"); Serial.println();
-#endif
     os_getDevKey(AESkey);
     os_aes(AES_ENC, nwkkey, 16);
     os_getDevKey(AESkey);
@@ -441,9 +433,6 @@ static void calcBcnRxWindowFromMillis (u1_t ms, bit_t ini) {
 
 // Setup scheduled RX window (ping/multicast slot)
 static void rxschedInit (xref2rxsched_t rxsched) {
-#if TEST==1
-	Serial.print("rxschedInit"); Serial.println();
-#endif
     os_clearMem(AESkey,16);
     os_clearMem(LMIC.frame+8,8);
     os_wlsbf4(LMIC.frame, LMIC.bcninfo.time);
@@ -1345,7 +1334,6 @@ static void onJoinFailed (xref2osjob_t osjob) {
 static bit_t processJoinAccept (void) {
     ASSERT(LMIC.txrxFlags != TXRX_DNW1 || LMIC.dataLen != 0);
     ASSERT((LMIC.opmode & OP_TXRXPEND)!=0);
-
     if( LMIC.dataLen == 0 ) {
       nojoinframe:
         if( (LMIC.opmode & OP_JOINING) == 0 ) {
@@ -1620,11 +1608,6 @@ static void buildDataFrame (void) {
 
     }
     aes_appendMic(LMIC.nwkKey, LMIC.devaddr, LMIC.seqnoUp-1, /*up*/0, LMIC.frame, flen-4);
-#if TEST==1
-	Serial.print("buildDataFrame <"); Serial.print(flen); Serial.print("> ");
-	for (int i=0; i< flen; i++) { Serial.print(LMIC.frame[i],HEX); Serial.print(" "); }
-	Serial.println();
-#endif
     EV(dfinfo, DEBUG, (e_.deveui  = MAIN::CDEV->getEui(),
                        e_.devaddr = LMIC.devaddr,
                        e_.seqno   = LMIC.seqnoUp-1,
