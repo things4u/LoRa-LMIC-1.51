@@ -66,7 +66,8 @@ void printBuf(char *lbl, xref2u1_t buf, u2_t len) {
 #define AESaux ((u1_t*)AESAUX)				// Nr 10,11 is framecounter
 #endif
 
-#define msbf4_read(p)   (u4_t)((u4_t)(p)[0]<<24 | (u4_t)(p)[1]<<16 | (p)[2]<<8 | (p)[3])
+//#define msbf4_read(p)   (u4_t)((u4_t)(p)[0]<<24 | (u4_t)(p)[1]<<16 | (p)[2]<<8 | (p)[3])
+#define msbf4_read(p) (((u4_t)((p)[0]) << 8 | (p)[1]) << 8 | (p)[2]) << 8 | (p)[3]
 
 u4_t AESAUX[16/sizeof(u4_t)];
 // 0 = Message Code (1 for CTR)
