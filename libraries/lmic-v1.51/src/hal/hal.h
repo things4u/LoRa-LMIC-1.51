@@ -14,7 +14,8 @@ static const int NUM_DIO = 3;
 
 struct lmic_pinmap {
     u1_t nss;
-    u1_t rxtx;					// No used by ESP8266 and Aduino
+    u1_t rxen; // Recieve enable pin, needed for some SX1276 modules (eg NiceRF Lora1276)
+    u1_t txen; // Transmit enable pin, needed for some SX1276 modules (eg NiceRF Lora1276)	
     u1_t rst;
     u1_t dio[NUM_DIO];			// No all a needed bij ESP8266 and Arduino
 };

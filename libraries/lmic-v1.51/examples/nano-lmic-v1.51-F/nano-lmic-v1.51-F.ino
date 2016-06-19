@@ -106,7 +106,8 @@ static osjob_t sendjob;
 //
 lmic_pinmap pins = {
   .nss = 10,			// Connected to pin D10
-  .rxtx = 0, 			// For placeholder only, Do not connected on RFM92/RFM95
+  .rxen = 0, 			// Needed for NiceRF Lora1276. Not needed for RFM92/RFM95
+  .txen = 0, 			// Needed for NiceRF Lora1276. Not needed for RFM92/RFM95
   .rst = 0,  			// Needed on RFM92/RFM95? (probably not)
   .dio = {4, 5, 7},		// Specify pin numbers for DIO0, 1, 2
 						// connected to D4, D5, D7 
